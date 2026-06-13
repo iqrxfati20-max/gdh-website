@@ -1,0 +1,170 @@
+Create a complete single-file HTML e-commerce website for "Gorakhpur Diaper House" in ONE index.html file. No backend needed — all data in JavaScript arrays.
+
+════════════════════════════════
+BUSINESS DETAILS
+════════════════════════════════
+- Shop Name: Gorakhpur Diaper House
+- Tagline: Gorakhpur ki No.1 Baby Shop
+- Address: Rahmat Nagar Chauraha, Near Water Tank, Khoonipur, Sahabganj, Gorakhpur UP 273005
+- Timing: Monday–Saturday, 10am–8pm
+- Google Rating: 5.0★ (15 Reviews)
+- Instagram: @gorakhpurdiaperhouse
+- WhatsApp: [APNA NUMBER DAALO e.g. 919876543210]
+- FREE Delivery inside Gorakhpur city
+
+════════════════════════════════
+COLOR THEME (Logo se liya — strictly follow karo)
+════════════════════════════════
+--pink: #F4A0B0 (logo soft pink)
+--deep-pink: #E8547A (buttons, accents)
+--brown: #5C3D2E (logo brown, headings)
+--light-pink: #FDE8ED (backgrounds, cards)
+--cream: #FFFAF8 (page background)
+--white: #FFFFFF
+--gray: #8A7070
+
+Font: Fredoka One (headings/logo), Nunito (body)
+Import from Google Fonts.
+
+════════════════════════════════
+PAGES — JS routing, no reload
+════════════════════════════════
+
+PAGE 1: HOME
+- Sticky navbar: logo (baby emoji + "Gorakhpur Diaper House"), nav links, WhatsApp button (#25D366), Cart icon with count badge, Admin button
+- Hero: shop name, FREE delivery badge, "Shop Now" + "WhatsApp Order" buttons, stats row (5★ / 15 Reviews / FREE Delivery / 1000+ Customers)
+- Why Us section: 4 cards — FREE Delivery, 100% Original, Best Price, 5 Star Rated
+- Featured Products: first 6 products
+- Loyalty Program section: explain point system visually with Silver/Gold/Platinum tiers
+- Contact section: Address card, Timing card, WhatsApp card, Instagram card
+- Footer
+
+PAGE 2: PRODUCTS
+- Search bar
+- Category filter pills: All, Baby Diapers, Adult Diapers, Baby Wipes, Sanitary Pads, Baby Care, Rash Cream, Baby Lotion, Baby Powder, Baby Oil, Baby Soap, Baby Shampoo
+- Product cards: emoji icon, brand, name, star rating, price, old price strikethrough, Add to Cart button, badge (Best Seller / New Arrival / Sale / Free Delivery)
+
+PAGE 3: MY ACCOUNT (customer login page)
+- Simple login: Mobile Number + Name (stored in localStorage)
+- After login show:
+  - Customer dashboard with their name, total points, current tier badge
+  - Points history table (purchases + referrals)
+  - Referral section: unique referral code, share via WhatsApp button, how many people referred
+  - Redeem points button — opens modal showing what they can get
+  - Tier progress bar showing journey to next tier
+
+════════════════════════════════
+CART SIDEBAR
+════════════════════════════════
+- Slide in from right
+- Items with qty controls (+/-) and remove button
+- Subtotal row
+- FREE Delivery badge (green)
+- Grand Total
+- "Proceed to Order" → checkout modal
+- "Order via WhatsApp" → pre-filled WhatsApp message with all cart items and total
+
+════════════════════════════════
+CHECKOUT MODAL
+════════════════════════════════
+- Fields: Full Name, Mobile Number, Full Address, Pincode, Payment (COD / UPI / Online Transfer), Notes
+- If customer logged in: show their referral code earned points preview (+10 pts per ₹100)
+- Place Order saves to orders array and adds points to customer
+
+════════════════════════════════
+LOYALTY & REFERRAL SYSTEM
+════════════════════════════════
+
+EARNING POINTS:
+- Purchase: 10 points per ₹100 spent (auto added on order)
+- Referral bonus: 50 points when a referred person places their first order
+- Referred person also gets: 20 bonus points on signup with referral code
+
+TIER SYSTEM (based on total lifetime points):
+┌─────────────┬──────────────┬─────────────────────────────────┐
+│ Tier        │ Points Needed│ Benefits                        │
+├─────────────┼──────────────┼─────────────────────────────────┤
+│ 🥉 Silver   │ 0 – 499      │ 5% discount on next order       │
+│ 🥈 Gold     │ 500 – 1499   │ 10% discount + priority delivery│
+│ 🥇 Platinum │ 1500+        │ 15% discount + free gift        │
+└─────────────┴──────────────┴─────────────────────────────────┘
+
+REFERRAL SYSTEM:
+- Each customer gets a unique referral code (e.g. GDH-PRIYA-4821)
+- They share this code with friends
+- Friend enters referral code during checkout
+- Both get points
+- Dashboard shows: "Aapne X logon ko refer kiya"
+- 5 referrals milestone: unlock special reward notification
+
+REDEEM POINTS:
+- 100 points = ₹10 discount on next order
+- Minimum 200 points needed to redeem
+- Redeem modal: slider to choose how many points to use
+- Shows: "Aap ₹X ki choot payenge"
+- Owner gets notified via WhatsApp with redemption details
+
+════════════════════════════════
+ADMIN DASHBOARD (password: admin123)
+════════════════════════════════
+Tab 1 — Overview:
+- Stats cards: Total Products, Total Orders, Total Revenue, Total Customers, Points Issued
+- Recent Orders table
+
+Tab 2 — Products:
+- Searchable table with Edit / Delete
+- Each row: Emoji, Name, Brand, Category, Price, Old Price, Stock, Badge, Actions
+
+Tab 3 — Orders:
+- All orders table
+- Columns: Order ID, Customer, Phone, Items, Total, Payment, Referral Used, Status dropdown, Date
+- Status dropdown: Processing → Shipped → Delivered → Cancelled
+
+Tab 4 — Customers:
+- Table of all registered customers
+- Columns: Name, Phone, Referral Code, Total Points, Tier, Orders Count, Total Spent, Referred By
+- Admin can manually add/deduct points
+
+Tab 5 — Add/Edit Product:
+- Form: Name, Brand, Category (dropdown), Price, Original Price, Stock, Emoji Icon, Badge dropdown, Rating, Card Background Color, Description
+- Save button adds to products array
+
+════════════════════════════════
+PRODUCTS DATA (pre-loaded)
+════════════════════════════════
+1.  Pampers New Born (S)       | Baby Diapers   | ₹449  | was ₹599 | Best Seller | 👶 | pink bg
+2.  Huggies Wonder Pants (L)   | Baby Diapers   | ₹549  | was ₹699 | Top Pick    | ✨ | blue bg
+3.  MamyPoko Pants (XL)        | Baby Diapers   | ₹399  | was ₹499 | Sale        | 🌸 | purple bg
+4.  Friends Adult Diaper (L)   | Adult Diapers  | ₹349  | was ₹429 | Best Seller | 🏥 | green bg
+5.  Johnsons Baby Wipes        | Baby Wipes     | ₹199  | was ₹249 | New Arrival | 🧻 | yellow bg
+6.  Stayfree Pads XL           | Sanitary Pads  | ₹89   | was ₹110 |             | 🌺 | purple bg
+7.  Himalaya Rash Cream        | Rash Cream     | ₹149  | was ₹179 | Best Seller | 🌿 | green bg
+8.  Johnsons Baby Lotion       | Baby Lotion    | ₹249  | was ₹299 |             | 💧 | blue bg
+9.  Johnsons Baby Powder       | Baby Powder    | ₹189  | was ₹220 |             | ☁️ | yellow bg
+10. Dabur Baby Massage Oil     | Baby Oil       | ₹175  | was ₹210 | New Arrival | 🌻 | pink bg
+
+════════════════════════════════
+SAMPLE DATA
+════════════════════════════════
+Sample Customers:
+- Priya Sharma | 9876543210 | Code: GDH-PRIYA-1234 | 320 pts | Silver | Referred 2
+- Riya Singh   | 8765432109 | Code: GDH-RIYA-5678  | 680 pts | Gold   | Referred 1
+
+Sample Orders:
+- GDH001 | Priya Sharma | 9876543210 | Pampers NB x2 | ₹898 | COD | Delivered
+- GDH002 | Riya Singh   | 8765432109 | Huggies L x1  | ₹549 | UPI | Processing
+- GDH003 | Anjali Gupta | 7654321098 | Himalaya x3   | ₹447 | COD | Shipped
+
+════════════════════════════════
+EXTRA FEATURES
+════════════════════════════════
+- Floating pink/brown bubble background animation
+- Toast notifications (cart add, order placed, points earned)
+- Mobile responsive (hamburger menu on mobile)
+- WhatsApp order generates message: product list + total + customer address
+- Smooth page transitions
+- Tier badge shown on navbar when logged in (🥉🥈🥇)
+- Points earned popup after every order: "🎉 Aapne X points kamaye!"
+- Referral code auto-copy button
+- Progress bar to next tier with percentage
+- Everything in ONE index.html — no external files needed except Google Fonts CDN
