@@ -111,7 +111,7 @@ export function Navbar() {
                     )}
                     <Button
                       className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold h-11 rounded-full"
-                      onClick={() => { window.open("https://wa.me/919876543210", "_blank"); setMobileMenuOpen(false); }}
+                      onClick={() => { window.open("https://wa.me/919169111557", "_blank"); setMobileMenuOpen(false); }}
                     >
                       Chat on WhatsApp
                     </Button>
@@ -152,7 +152,7 @@ export function Navbar() {
             {/* WhatsApp (desktop only) */}
             <Button
               className="hidden sm:flex h-9 px-4 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs gap-1.5 shadow-sm"
-              onClick={() => window.open("https://wa.me/919876543210", "_blank")}
+              onClick={() => window.open("https://wa.me/919169111557", "_blank")}
               data-testid="button-navbar-whatsapp"
             >
               WhatsApp

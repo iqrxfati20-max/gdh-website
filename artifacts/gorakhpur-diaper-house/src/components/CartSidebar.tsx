@@ -22,7 +22,7 @@ export function CartSidebar() {
       return `- ${item.product.name}${sizePart} x${item.qty} = ₹${item.product.price * item.qty}`;
     });
     const text = `Hi Gorakhpur Diaper House!\n\nI want to order:\n${lines.join('\n')}\n\nTotal: ₹${subtotal}\n\nPlease let me know the delivery details.`;
-    const url = `https://wa.me/919876543210?text=${encodeURIComponent(text)}`;
+    const url = `https://wa.me/919169111557?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
 

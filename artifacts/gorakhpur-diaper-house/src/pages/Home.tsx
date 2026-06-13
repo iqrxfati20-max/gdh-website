@@ -51,7 +51,7 @@ export default function Home() {
               <Button
                 variant="outline"
                 className="h-13 px-7 rounded-full border-2 border-[#F4A0B0] text-[#5C3D2E] hover:bg-[#FDE8ED] hover:border-[#E8547A] font-bold text-base transition-all"
-                onClick={() => window.open("https://wa.me/919876543210", "_blank")}
+                onClick={() => window.open("https://wa.me/919169111557", "_blank")}
                 data-testid="button-hero-whatsapp"
               >
                 WhatsApp Order
@@ -237,7 +237,7 @@ export default function Home() {
                 title: "WhatsApp",
                 content: (
                   <button
-                    onClick={() => window.open("https://wa.me/919876543210", "_blank")}
+                    onClick={() => window.open("https://wa.me/919169111557", "_blank")}
                     className="mt-1 inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold px-4 py-2 rounded-full transition-colors"
                   >
                     Chat Now
