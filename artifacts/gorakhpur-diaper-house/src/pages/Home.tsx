@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProductCard } from "../components/ProductCard";
 import { useAppContext } from "../context/AppContext";
+import { ShopLogo } from "../components/ShopLogo";
 
 export default function Home() {
   const { products } = useAppContext();
@@ -198,9 +199,17 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-white/50 font-medium">
-            <p>© {new Date().getFullYear()} Gorakhpur Diaper House. All rights reserved.</p>
-            <p>Made with ❤️ for Gorakhpur</p>
+          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <ShopLogo height={70} variant="footer" />
+              <p className="text-sm text-white/40 font-medium max-w-[200px] leading-relaxed">
+                Gorakhpur ki No.1 Baby Shop
+              </p>
+            </div>
+            <div className="flex flex-col items-center md:items-end gap-1">
+              <p className="text-sm text-white/50 font-medium">© {new Date().getFullYear()} Gorakhpur Diaper House</p>
+              <p className="text-sm text-white/40 font-medium">Made with ❤️ for Gorakhpur</p>
+            </div>
           </div>
         </div>
       </footer>

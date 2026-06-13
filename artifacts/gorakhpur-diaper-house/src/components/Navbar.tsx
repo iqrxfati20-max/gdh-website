@@ -9,6 +9,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useState } from "react";
+import { ShopLogo } from "./ShopLogo";
 
 export function Navbar() {
   const { cart, currentCustomer, setIsCartOpen } = useAppContext();
@@ -40,14 +41,8 @@ export function Navbar() {
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-          <span className="text-3xl">👶</span>
-          <span className="font-heading text-2xl text-[#5C3D2E] hidden sm:block tracking-wide">
-            Gorakhpur Diaper House
-          </span>
-          <span className="font-heading text-xl text-[#5C3D2E] sm:hidden tracking-wide">
-            GDH
-          </span>
+        <Link href="/" className="flex items-center hover:opacity-90 transition-opacity" data-testid="link-home-logo">
+          <ShopLogo height={55} />
         </Link>
 
         {/* Desktop Nav */}
@@ -95,8 +90,7 @@ export function Navbar() {
             <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-[#FFFAF8] border-l-[#F4A0B0]/30">
               <div className="flex flex-col gap-6 mt-10">
                 <div className="flex items-center gap-3 px-4 pb-6 border-b border-border">
-                  <span className="text-3xl">👶</span>
-                  <span className="font-heading text-xl text-[#5C3D2E]">GDH Menu</span>
+                  <ShopLogo height={48} />
                 </div>
                 <div className="flex flex-col gap-2">
                   <NavLinks />
