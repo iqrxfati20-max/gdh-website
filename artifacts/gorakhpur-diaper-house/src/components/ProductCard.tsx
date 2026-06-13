@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAppContext } from "../context/AppContext";
 import { toast } from "sonner";
-import { Star } from "lucide-react";
 
 const DIAPER_SIZES: Record<string, string[]> = {
   "Baby Diapers": ["NB", "S", "M", "L", "XL", "XXL"],
@@ -16,6 +15,13 @@ function isDiaperCategory(category: string): boolean {
   return category in DIAPER_SIZES;
 }
 
+const BADGE_COLORS: Record<string, string> = {
+  "Best Seller": "bg-[#FFF0E0] text-[#C2671E] border-[#F59E0B]/20",
+  "New Arrival": "bg-[#E8FDF0] text-[#166534] border-[#25D366]/20",
+  "Sale":        "bg-[#FDE8ED] text-[#E8547A] border-[#E8547A]/20",
+  "Top Pick":    "bg-[#EEF0FF] text-[#4338CA] border-[#6366F1]/20",
+};
+
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart, setIsCartOpen } = useAppContext();
   const [sizeModalOpen, setSizeModalOpen] = useState(false);
@@ -24,6 +30,10 @@ export function ProductCard({ product }: { product: Product }) {
 
   const isDialer = isDiaperCategory(product.category);
   const sizes = DIAPER_SIZES[product.category] ?? [];
+  const badgeClass = product.badge ? BADGE_COLORS[product.badge] ?? "bg-muted text-muted-foreground" : "";
+  const savePct = product.oldPrice > product.price
+    ? Math.round((1 - product.price / product.oldPrice) * 100)
+    : 0;
 
   const handleAddToCartClick = () => {
     if (isDialer) {
@@ -43,7 +53,7 @@ export function ProductCard({ product }: { product: Product }) {
       return;
     }
     addToCart(product.id, 1, selectedSize);
-    toast.success(`Added to cart! — Size: ${selectedSize}`);
+    toast.success(`Added to cart — Size ${selectedSize}`);
     setSizeModalOpen(false);
     setIsCartOpen(true);
   };
@@ -51,81 +61,85 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <>
       <div
-        className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm border border-border hover:shadow-md transition-all duration-300"
+        className="group flex flex-col bg-white border border-[#F0E4E8] rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
         data-testid={`card-product-${product.id}`}
       >
-        {product.badge && (
-          <div className="absolute left-3 top-3 z-10">
-            <Badge className="bg-primary/90 hover:bg-primary text-white font-semibold">
-              {product.badge}
-            </Badge>
-          </div>
-        )}
-
+        {/* Emoji image area */}
         <div
-          className="aspect-square flex items-center justify-center relative overflow-hidden"
+          className="relative flex items-center justify-center py-10"
           style={{ backgroundColor: product.cardBg }}
         >
-          <span className="text-8xl transform group-hover:scale-110 transition-transform duration-500">
+          {product.badge && (
+            <span
+              className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full border ${badgeClass}`}
+            >
+              {product.badge}
+            </span>
+          )}
+          {savePct > 0 && (
+            <span className="absolute top-3 right-3 text-xs font-bold px-2 py-1 rounded-full bg-[#E8547A] text-white">
+              -{savePct}%
+            </span>
+          )}
+          <span className="text-7xl group-hover:scale-110 transition-transform duration-300 select-none">
             {product.emoji}
           </span>
         </div>
 
+        {/* Card body */}
         <div className="flex flex-col flex-1 p-5">
-          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">
+          <p className="text-xs font-bold text-[#8A7070] uppercase tracking-widest mb-1">
             {product.brand}
-          </span>
-          <h3 className="font-bold text-foreground text-lg leading-tight mb-2 line-clamp-2">
+          </p>
+          <h3 className="font-bold text-[#5C3D2E] text-base leading-snug mb-3 line-clamp-2 flex-1">
             {product.name}
           </h3>
 
-          <div className="flex items-center gap-1 mb-3">
+          {/* Stars */}
+          <div className="flex items-center gap-1 mb-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <Star
+              <svg
                 key={i}
-                className={`w-4 h-4 ${i < Math.floor(product.rating) ? "fill-[#F59E0B] text-[#F59E0B]" : "fill-muted text-muted"}`}
-              />
+                className={`w-3.5 h-3.5 ${i < Math.floor(product.rating) ? "fill-[#F59E0B] text-[#F59E0B]" : "fill-[#E5E7EB] text-[#E5E7EB]"}`}
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
             ))}
-            <span className="text-xs text-muted-foreground ml-1">({product.rating})</span>
+            <span className="text-xs text-[#8A7070] ml-1 font-semibold">{product.rating}</span>
           </div>
 
-          <div className="mt-auto">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-black text-foreground">₹{product.price}</span>
-              {product.oldPrice > product.price && (
-                <span className="text-sm font-medium text-muted-foreground line-through decoration-muted-foreground/50">
-                  ₹{product.oldPrice}
-                </span>
-              )}
-            </div>
+          {/* Price row */}
+          <div className="flex items-baseline gap-2 mb-4">
+            <span className="text-2xl font-black text-[#5C3D2E]">₹{product.price}</span>
             {product.oldPrice > product.price && (
-              <p className="text-xs font-bold text-primary mt-0.5">
-                Save ₹{product.oldPrice - product.price}!
-              </p>
+              <span className="text-sm text-[#8A7070] line-through font-medium">₹{product.oldPrice}</span>
             )}
           </div>
 
+          {/* Add to Cart */}
           <Button
             data-testid={`button-add-to-cart-${product.id}`}
             onClick={handleAddToCartClick}
-            className="w-full mt-4 bg-[#E8547A] hover:bg-[#D43D63] text-white font-bold h-11 rounded-xl"
+            className="w-full h-11 rounded-xl bg-[#E8547A] hover:bg-[#D43D63] text-white font-bold text-sm transition-colors"
           >
-            {isDialer ? "Select Size & Add" : "Add to Cart"}
+            {isDialer ? "Select Size" : "Add to Cart"}
           </Button>
         </div>
       </div>
 
+      {/* Size Selector Modal */}
       <Dialog open={sizeModalOpen} onOpenChange={setSizeModalOpen}>
-        <DialogContent className="max-w-sm rounded-2xl bg-[#FFFAF8] border-[#F4A0B0]/40 p-6">
+        <DialogContent className="max-w-xs rounded-2xl bg-white border-[#F0E4E8] p-6">
           <DialogHeader>
             <DialogTitle className="font-heading text-[#5C3D2E] text-xl text-center">
-              Select Size
+              Choose Size
             </DialogTitle>
           </DialogHeader>
 
-          <div className="mt-1 text-center">
-            <p className="text-sm text-muted-foreground mb-1">{product.name}</p>
-            <p className="text-xs text-muted-foreground mb-4">{product.category}</p>
+          <div className="text-center mt-1 mb-4">
+            <p className="text-sm font-bold text-[#5C3D2E]">{product.name}</p>
+            <p className="text-xs text-[#8A7070] mt-0.5">{product.category}</p>
           </div>
 
           <div className="grid grid-cols-3 gap-2 mb-4" data-testid="size-selector-grid">
@@ -140,8 +154,8 @@ export function ProductCard({ product }: { product: Product }) {
                 className={`
                   py-3 rounded-xl text-sm font-bold border-2 transition-all duration-150
                   ${selectedSize === size
-                    ? "bg-[#E8547A] border-[#E8547A] text-white shadow-md scale-105"
-                    : "bg-white border-[#F4A0B0] text-[#5C3D2E] hover:border-[#E8547A] hover:bg-[#FDE8ED]"
+                    ? "bg-[#E8547A] border-[#E8547A] text-white shadow-sm"
+                    : "bg-white border-[#F0E4E8] text-[#5C3D2E] hover:border-[#E8547A]/40 hover:bg-[#FDE8ED]"
                   }
                 `}
               >
@@ -153,16 +167,16 @@ export function ProductCard({ product }: { product: Product }) {
           {sizeWarning && (
             <p
               data-testid="text-size-warning"
-              className="text-xs text-destructive text-center font-medium mb-3 bg-destructive/10 py-2 rounded-lg"
+              className="text-xs text-[#E8547A] text-center font-semibold mb-3 bg-[#FDE8ED] py-2 rounded-lg"
             >
-              Please select a size
+              Please select a size first
             </p>
           )}
 
           <Button
             data-testid="button-confirm-size"
             onClick={handleConfirmSize}
-            className="w-full bg-[#E8547A] hover:bg-[#D43D63] text-white font-bold h-12 rounded-xl text-base"
+            className="w-full h-12 bg-[#E8547A] hover:bg-[#D43D63] text-white font-bold rounded-xl"
           >
             {selectedSize ? `Add to Cart — Size ${selectedSize}` : "Add to Cart"}
           </Button>

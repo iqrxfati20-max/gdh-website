@@ -1,106 +1,143 @@
-import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { ProductCard } from "../components/ProductCard";
 import { useAppContext } from "../context/AppContext";
 import { ShopLogo } from "../components/ShopLogo";
+import { Truck, BadgeCheck, Tag, Star, MapPin, Clock, MessageCircle, Instagram } from "lucide-react";
 
 export default function Home() {
   const { products } = useAppContext();
   const featuredProducts = products.slice(0, 6);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      
-      {/* HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#FDE8ED] to-white pt-20 pb-32">
-        {/* Animated Bubbles (CSS keyframes in style block below) */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="bubble w-32 h-32 bg-[#F4A0B0]/20 rounded-full absolute left-[10%] bottom-[-10%] blur-xl animate-float-slow"></div>
-          <div className="bubble w-48 h-48 bg-[#F4A0B0]/20 rounded-full absolute right-[10%] top-[20%] blur-xl animate-float-med"></div>
-          <div className="bubble w-20 h-20 bg-[#5C3D2E]/5 rounded-full absolute left-[50%] top-[10%] blur-lg animate-float-fast"></div>
-        </div>
+    <div className="flex flex-col min-h-screen bg-white">
 
-        <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center">
-          <div className="inline-flex items-center gap-2 bg-[#25D366]/10 text-[#166534] px-4 py-1.5 rounded-full font-bold text-sm mb-6 border border-[#25D366]/20">
-            <span>🚚</span> FREE Delivery in Gorakhpur City!
-          </div>
-          
-          <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl text-[#5C3D2E] mb-4 tracking-tight drop-shadow-sm">
-            Gorakhpur <br className="hidden md:block"/> Diaper House
+      {/* ── HERO ── */}
+      <section className="relative bg-gradient-to-b from-[#FDE8ED] via-[#FEF0F4] to-white pt-24 pb-28 overflow-hidden">
+        {/* Subtle decorative blobs */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#F4A0B0]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#E8547A]/8 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4 pointer-events-none" />
+
+        <div className="container mx-auto px-6 max-w-5xl relative z-10 flex flex-col items-center text-center">
+          {/* FREE Delivery pill */}
+          <span className="inline-flex items-center gap-2 bg-[#25D366]/10 text-[#166534] border border-[#25D366]/25 px-5 py-2 rounded-full text-sm font-bold tracking-wide mb-8">
+            <Truck className="w-4 h-4" /> FREE Delivery inside Gorakhpur City
+          </span>
+
+          {/* Main heading */}
+          <h1 className="font-heading text-[3.5rem] sm:text-7xl lg:text-8xl leading-[1.05] text-[#5C3D2E] mb-6 tracking-tight">
+            Gorakhpur ki<br />
+            No.1 Baby Shop
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground font-bold mb-10 max-w-2xl">
-            Gorakhpur ki No.1 Baby Shop. 👶 Original products, best prices, guaranteed.
+
+          <p className="text-lg sm:text-xl text-[#8A7070] font-semibold mb-10 max-w-xl leading-relaxed">
+            Original branded products at the best prices. Order online, delivered free to your door.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 mb-16 w-full justify-center max-w-md mx-auto">
-            <Link href="/products" className="w-full sm:w-auto">
-              <Button className="w-full sm:w-auto bg-[#E8547A] hover:bg-[#D43D63] text-white font-bold h-14 px-8 rounded-full text-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-16">
+            <Link href="/products">
+              <Button
+                className="h-14 px-10 rounded-full bg-[#E8547A] hover:bg-[#D43D63] text-white font-bold text-base shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
+                data-testid="button-hero-shop-now"
+              >
                 Shop Now
               </Button>
             </Link>
-            <Button 
+            <Button
               variant="outline"
-              className="w-full sm:w-auto bg-white hover:bg-[#25D366] text-[#25D366] hover:text-white border-[#25D366]/30 font-bold h-14 px-8 rounded-full text-lg shadow-md transition-all"
+              className="h-14 px-10 rounded-full border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white font-bold text-base transition-all"
               onClick={() => window.open("https://wa.me/919876543210", "_blank")}
+              data-testid="button-hero-whatsapp"
             >
               Order via WhatsApp
             </Button>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-6 md:gap-12 text-[#5C3D2E] font-bold text-sm md:text-base">
-            <div className="flex items-center gap-2"><span className="text-2xl">⭐</span> 5 Star Rated</div>
-            <div className="flex items-center gap-2"><span className="text-2xl">📝</span> 15k+ Reviews</div>
-            <div className="flex items-center gap-2"><span className="text-2xl">💯</span> 100% Original</div>
-            <div className="flex items-center gap-2"><span className="text-2xl">👨‍👩‍👧</span> 10,000+ Happy Customers</div>
+          {/* Stats row */}
+          <div className="flex flex-wrap justify-center gap-8 sm:gap-16">
+            {[
+              { icon: <Star className="w-5 h-5 fill-[#F59E0B] text-[#F59E0B]" />, value: "5.0", label: "Google Rating" },
+              { icon: <BadgeCheck className="w-5 h-5 text-[#E8547A]" />, value: "15+", label: "Reviews" },
+              { icon: <Truck className="w-5 h-5 text-[#25D366]" />, value: "FREE", label: "Delivery" },
+              { icon: <span className="text-lg">👨‍👩‍👧</span>, value: "1000+", label: "Happy Customers" },
+            ].map(stat => (
+              <div key={stat.label} className="flex flex-col items-center gap-1">
+                <div className="flex items-center gap-1.5">
+                  {stat.icon}
+                  <span className="font-heading text-2xl text-[#5C3D2E]">{stat.value}</span>
+                </div>
+                <span className="text-xs text-[#8A7070] font-semibold tracking-wide uppercase">{stat.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* WHY US SECTION */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 max-w-6xl">
+      {/* ── WHY US ── */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-6 max-w-5xl">
+          <div className="text-center mb-14">
+            <h2 className="font-heading text-4xl sm:text-5xl text-[#5C3D2E] mb-3">Why Choose Us?</h2>
+            <p className="text-[#8A7070] font-semibold text-base max-w-md mx-auto">Gorakhpur's most trusted baby products store — built on quality and care.</p>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="p-6 rounded-3xl border-border shadow-sm text-center hover:shadow-md transition-shadow bg-[#FDE8ED]/50">
-              <span className="text-5xl block mb-4">🚚</span>
-              <h3 className="font-heading text-xl text-[#5C3D2E] mb-2">FREE Delivery</h3>
-              <p className="text-muted-foreground font-medium text-sm">Superfast free delivery anywhere inside Gorakhpur city limits.</p>
-            </Card>
-            <Card className="p-6 rounded-3xl border-border shadow-sm text-center hover:shadow-md transition-shadow bg-[#E8FDF0]/50">
-              <span className="text-5xl block mb-4">✅</span>
-              <h3 className="font-heading text-xl text-[#5C3D2E] mb-2">100% Original</h3>
-              <p className="text-muted-foreground font-medium text-sm">We only sell genuine products sourced directly from brands.</p>
-            </Card>
-            <Card className="p-6 rounded-3xl border-border shadow-sm text-center hover:shadow-md transition-shadow bg-[#E8F4FD]/50">
-              <span className="text-5xl block mb-4">💰</span>
-              <h3 className="font-heading text-xl text-[#5C3D2E] mb-2">Best Prices</h3>
-              <p className="text-muted-foreground font-medium text-sm">Guaranteed wholesale rates on retail purchases. Save on every order.</p>
-            </Card>
-            <Card className="p-6 rounded-3xl border-border shadow-sm text-center hover:shadow-md transition-shadow bg-[#FDFDE8]/50">
-              <span className="text-5xl block mb-4">⭐</span>
-              <h3 className="font-heading text-xl text-[#5C3D2E] mb-2">5 Star Shop</h3>
-              <p className="text-muted-foreground font-medium text-sm">Gorakhpur's most trusted and highly rated baby store on Google.</p>
-            </Card>
+            {[
+              {
+                icon: <Truck className="w-6 h-6 text-[#E8547A]" />,
+                title: "FREE Delivery",
+                desc: "Fast, free delivery to every corner of Gorakhpur city.",
+              },
+              {
+                icon: <BadgeCheck className="w-6 h-6 text-[#E8547A]" />,
+                title: "100% Original",
+                desc: "Every product is genuine, sourced directly from brands.",
+              },
+              {
+                icon: <Tag className="w-6 h-6 text-[#E8547A]" />,
+                title: "Best Prices",
+                desc: "Wholesale rates on retail purchases. Save on every order.",
+              },
+              {
+                icon: <Star className="w-6 h-6 text-[#E8547A] fill-[#E8547A]" />,
+                title: "5 Star Rated",
+                desc: "Gorakhpur's highest rated baby store on Google Maps.",
+              },
+            ].map(item => (
+              <div
+                key={item.title}
+                className="bg-white border border-[#F0E4E8] rounded-2xl p-8 flex flex-col items-center text-center hover:shadow-md hover:-translate-y-1 transition-all duration-200"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-[#FDE8ED] flex items-center justify-center mb-5">
+                  {item.icon}
+                </div>
+                <h3 className="font-bold text-[#5C3D2E] text-lg mb-2">{item.title}</h3>
+                <p className="text-[#8A7070] text-sm font-medium leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* FEATURED PRODUCTS */}
-      <section className="py-20 bg-[#FFFAF8]">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="flex items-end justify-between mb-10">
+      {/* ── FEATURED PRODUCTS ── */}
+      <section className="py-24 bg-[#FFFAF8]">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="flex items-end justify-between mb-12">
             <div>
-              <h2 className="font-heading text-4xl text-[#5C3D2E] mb-2">Best Sellers 🌟</h2>
-              <p className="text-muted-foreground font-bold text-lg">Top picks by Gorakhpur moms!</p>
+              <p className="text-[#E8547A] font-bold text-sm tracking-widest uppercase mb-2">Best Sellers</p>
+              <h2 className="font-heading text-4xl sm:text-5xl text-[#5C3D2E]">Top Picks</h2>
             </div>
             <Link href="/products" className="hidden sm:block">
-              <Button variant="outline" className="rounded-full font-bold hover:bg-[#FDE8ED] hover:text-[#E8547A]">
-                View All Products
+              <Button
+                variant="outline"
+                className="rounded-full font-bold border-[#F0E4E8] hover:bg-[#FDE8ED] hover:text-[#E8547A] hover:border-[#E8547A]/30 transition-all"
+              >
+                View All
               </Button>
             </Link>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {featuredProducts.map(product => (
               <ProductCard key={product.id} product={product} />
@@ -109,7 +146,7 @@ export default function Home() {
 
           <div className="mt-10 text-center sm:hidden">
             <Link href="/products">
-              <Button variant="outline" className="w-full rounded-full font-bold h-12">
+              <Button variant="outline" className="w-full rounded-full font-bold h-12 border-[#F0E4E8]">
                 View All Products
               </Button>
             </Link>
@@ -117,121 +154,109 @@ export default function Home() {
         </div>
       </section>
 
-      {/* LOYALTY PROGRAM */}
-      <section className="py-20 bg-[#FDE8ED]">
-        <div className="container mx-auto px-4 max-w-5xl text-center">
-          <h2 className="font-heading text-4xl text-[#5C3D2E] mb-4">GDH Family Rewards 🎁</h2>
-          <p className="text-muted-foreground font-bold text-lg mb-12 max-w-2xl mx-auto">
-            Earn points on every purchase and unlock lifetime discounts. Create an account today and get started!
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-[#F4A0B0]/30 relative overflow-hidden group hover:-translate-y-1 transition-transform">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-gray-200 to-transparent opacity-20 rounded-bl-full"></div>
-              <span className="text-6xl block mb-4">🥉</span>
-              <h3 className="font-heading text-2xl text-gray-700 mb-1">Silver Tier</h3>
-              <p className="text-sm text-muted-foreground font-bold mb-4">0 - 499 pts</p>
-              <div className="text-3xl font-black text-primary mb-2">5% OFF</div>
-              <p className="text-sm font-medium">on all orders</p>
-            </div>
-            
-            <div className="bg-white p-8 rounded-3xl shadow-md border-2 border-[#F59E0B]/30 relative overflow-hidden group hover:-translate-y-1 transition-transform md:-mt-4">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#F59E0B] to-transparent opacity-10 rounded-bl-full"></div>
-              <span className="text-6xl block mb-4">🥈</span>
-              <h3 className="font-heading text-2xl text-[#F59E0B] mb-1">Gold Tier</h3>
-              <p className="text-sm text-muted-foreground font-bold mb-4">500 - 1499 pts</p>
-              <div className="text-3xl font-black text-primary mb-2">10% OFF</div>
-              <p className="text-sm font-medium">+ Priority Delivery</p>
-            </div>
-            
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-300 relative overflow-hidden group hover:-translate-y-1 transition-transform">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-slate-400 to-transparent opacity-20 rounded-bl-full"></div>
-              <span className="text-6xl block mb-4">🥇</span>
-              <h3 className="font-heading text-2xl text-slate-700 mb-1">Platinum</h3>
-              <p className="text-sm text-muted-foreground font-bold mb-4">1500+ pts</p>
-              <div className="text-3xl font-black text-primary mb-2">15% OFF</div>
-              <p className="text-sm font-medium">+ Free Gifts</p>
-            </div>
+      {/* ── LOYALTY PROGRAM ── */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-6 max-w-5xl">
+          <div className="text-center mb-14">
+            <p className="text-[#E8547A] font-bold text-sm tracking-widest uppercase mb-2">Rewards Program</p>
+            <h2 className="font-heading text-4xl sm:text-5xl text-[#5C3D2E] mb-3">GDH Family Rewards</h2>
+            <p className="text-[#8A7070] font-semibold max-w-md mx-auto">Earn points on every purchase and unlock exclusive discounts. The more you shop, the more you save.</p>
           </div>
-          
-          <div className="bg-white/60 backdrop-blur rounded-2xl p-6 inline-block font-bold text-[#5C3D2E]">
-            💡 How to earn: <span className="text-primary">10 pts</span> for every ₹100 spent • <span className="text-primary">50 pts</span> per referral
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+            {[
+              { emoji: "🥉", tier: "Silver", range: "0 – 499 pts", discount: "5%", extra: "Discount on every order", border: "border-gray-200", accent: "text-gray-500" },
+              { emoji: "🥈", tier: "Gold", range: "500 – 1499 pts", discount: "10%", extra: "Discount + Priority Delivery", border: "border-[#F59E0B]/40", accent: "text-[#D97706]", featured: true },
+              { emoji: "🥇", tier: "Platinum", range: "1500+ pts", discount: "15%", extra: "Discount + Free Gift", border: "border-slate-300", accent: "text-slate-600" },
+            ].map(t => (
+              <div
+                key={t.tier}
+                className={`border-2 ${t.border} rounded-2xl p-8 text-center bg-white hover:-translate-y-1 transition-all duration-200 ${t.featured ? "shadow-md" : "shadow-sm"}`}
+              >
+                <div className="text-5xl mb-4">{t.emoji}</div>
+                <h3 className={`font-heading text-2xl mb-1 ${t.accent}`}>{t.tier}</h3>
+                <p className="text-[#8A7070] text-sm font-semibold mb-5">{t.range}</p>
+                <div className="text-4xl font-black text-[#E8547A] mb-1">{t.discount}</div>
+                <p className="text-sm text-[#8A7070] font-medium">{t.extra}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-[#FDE8ED] rounded-2xl p-6 text-center">
+            <p className="text-[#5C3D2E] font-bold text-base">
+              Earn <span className="text-[#E8547A]">10 points</span> for every ₹100 spent &nbsp;·&nbsp; <span className="text-[#E8547A]">50 points</span> for every referral
+            </p>
           </div>
         </div>
       </section>
 
-      {/* CONTACT & FOOTER */}
-      <footer className="bg-[#5C3D2E] text-white pt-20 pb-10">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
+      {/* ── FOOTER ── */}
+      <footer className="bg-[#5C3D2E] text-white py-16">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
             <div>
-              <h3 className="font-heading text-2xl mb-4 text-[#FDE8ED]">Visit Store 📍</h3>
-              <p className="text-[#FDE8ED]/80 font-medium leading-relaxed">
-                Rahmat Nagar Chauraha,<br/>
-                Near Water Tank, Khoonipur,<br/>
-                Sahabganj, Gorakhpur<br/>
+              <div className="flex items-center gap-2 mb-3">
+                <MapPin className="w-4 h-4 text-[#F4A0B0]" />
+                <h3 className="font-bold text-[#FDE8ED] text-sm tracking-widest uppercase">Visit Store</h3>
+              </div>
+              <p className="text-[#FDE8ED]/70 text-sm font-medium leading-relaxed">
+                Rahmat Nagar Chauraha,<br />
+                Near Water Tank, Khoonipur,<br />
+                Sahabganj, Gorakhpur<br />
                 UP 273005
               </p>
             </div>
             <div>
-              <h3 className="font-heading text-2xl mb-4 text-[#FDE8ED]">Timing 🕐</h3>
-              <p className="text-[#FDE8ED]/80 font-medium leading-relaxed">
-                Monday – Saturday<br/>
-                10:00 AM – 8:00 PM<br/>
-                Sunday Closed
+              <div className="flex items-center gap-2 mb-3">
+                <Clock className="w-4 h-4 text-[#F4A0B0]" />
+                <h3 className="font-bold text-[#FDE8ED] text-sm tracking-widest uppercase">Hours</h3>
+              </div>
+              <p className="text-[#FDE8ED]/70 text-sm font-medium leading-relaxed">
+                Monday – Saturday<br />
+                10:00 AM – 8:00 PM<br />
+                <span className="text-[#F4A0B0]/60">Sunday Closed</span>
               </p>
             </div>
             <div>
-              <h3 className="font-heading text-2xl mb-4 text-[#FDE8ED]">Contact 📱</h3>
-              <Button 
-                variant="outline" 
-                className="bg-[#25D366] hover:bg-[#20bd5a] text-white border-none font-bold rounded-xl"
+              <div className="flex items-center gap-2 mb-3">
+                <MessageCircle className="w-4 h-4 text-[#F4A0B0]" />
+                <h3 className="font-bold text-[#FDE8ED] text-sm tracking-widest uppercase">WhatsApp</h3>
+              </div>
+              <button
                 onClick={() => window.open("https://wa.me/919876543210", "_blank")}
+                className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-bold px-4 py-2 rounded-full transition-colors"
               >
-                WhatsApp Us
-              </Button>
+                Chat with us
+              </button>
             </div>
             <div>
-              <h3 className="font-heading text-2xl mb-4 text-[#FDE8ED]">Follow 📸</h3>
-              <a href="#" className="inline-flex items-center gap-2 text-[#FDE8ED]/80 hover:text-white font-bold transition-colors">
+              <div className="flex items-center gap-2 mb-3">
+                <Instagram className="w-4 h-4 text-[#F4A0B0]" />
+                <h3 className="font-bold text-[#FDE8ED] text-sm tracking-widest uppercase">Instagram</h3>
+              </div>
+              <a
+                href="#"
+                className="text-[#FDE8ED]/70 hover:text-white text-sm font-semibold transition-colors"
+              >
                 @gorakhpurdiaperhouse
               </a>
             </div>
           </div>
-          
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+
+          <div className="border-t border-white/10 pt-10 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <ShopLogo height={70} variant="footer" />
-              <p className="text-sm text-white/40 font-medium max-w-[200px] leading-relaxed">
+              <ShopLogo height={64} variant="footer" />
+              <p className="text-[#FDE8ED]/50 text-sm font-medium max-w-[180px] leading-relaxed">
                 Gorakhpur ki No.1 Baby Shop
               </p>
             </div>
             <div className="flex flex-col items-center md:items-end gap-1">
-              <p className="text-sm text-white/50 font-medium">© {new Date().getFullYear()} Gorakhpur Diaper House</p>
-              <p className="text-sm text-white/40 font-medium">Made with ❤️ for Gorakhpur</p>
+              <p className="text-[#FDE8ED]/50 text-sm font-medium">© {new Date().getFullYear()} Gorakhpur Diaper House</p>
+              <p className="text-[#FDE8ED]/35 text-sm font-medium">Made with ❤️ for Gorakhpur</p>
             </div>
           </div>
         </div>
       </footer>
-
-      {/* Add keyframes to the document head implicitly via styled JSX or plain style tag */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes float-slow {
-          0%, 100% { transform: translateY(0px) scale(1); }
-          50% { transform: translateY(-30px) scale(1.05); }
-        }
-        @keyframes float-med {
-          0%, 100% { transform: translateY(0px) scale(1); }
-          50% { transform: translateY(-20px) scale(0.95); }
-        }
-        @keyframes float-fast {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(5deg); }
-        }
-        .animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
-        .animate-float-med { animation: float-med 6s ease-in-out infinite; }
-        .animate-float-fast { animation: float-fast 4s ease-in-out infinite; }
-      `}} />
     </div>
   );
 }
