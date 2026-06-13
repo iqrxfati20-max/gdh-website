@@ -6,6 +6,7 @@ import { AppProvider } from "./context/AppContext";
 
 import { Navbar } from "./components/Navbar";
 import { CartSidebar } from "./components/CartSidebar";
+import { WhatsAppFloat } from "./components/WhatsAppFloat";
 
 import Home from "./pages/Home";
 import Products from "./pages/Products";
@@ -39,6 +40,7 @@ function App() {
                 <Router />
               </main>
               <CartSidebar />
+              <WhatsAppFloat />
             </div>
           </WouterRouter>
           <Toaster position="bottom-center" richColors />
