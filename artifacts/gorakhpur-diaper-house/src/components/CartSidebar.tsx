@@ -44,7 +44,7 @@ export function CartSidebar() {
             <h3 className="font-bold text-xl text-[#5C3D2E] mb-2">Cart is empty</h3>
             <p className="text-muted-foreground mb-6">Looks like you haven't added anything yet.</p>
             <Button
-              onClick={() => setIsCartOpen(false)}
+              onClick={() => { setIsCartOpen(false); window.location.href = '/products'; }}
               className="bg-[#E8547A] hover:bg-[#D43D63] text-white rounded-xl h-11 px-8 font-bold"
             >
               Start Shopping
