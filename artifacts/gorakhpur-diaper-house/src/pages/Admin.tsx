@@ -15,6 +15,7 @@ export default function Admin() {
   const { products, setProducts, orders, setOrders, customers, setCustomers } = useAppContext();
   
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [activeTab, setActiveTab] = useState("overview");
   const [password, setPassword] = useState("");
 
   const [productSearch, setProductSearch] = useState("");
@@ -56,6 +57,7 @@ export default function Admin() {
   const handleEditClick = (product: Product) => {
     setEditingProduct(product);
     setFormData(product);
+    setActiveTab("add-product");
   };
 
   const handleDeleteProduct = (id: number) => {
@@ -115,7 +117,7 @@ export default function Admin() {
         <Button variant="outline" onClick={() => setIsAuthenticated(false)}>Logout</Button>
       </div>
 
-      <Tabs defaultValue="overview" className="w-full space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
         <ScrollArea className="w-full whitespace-nowrap">
           <TabsList className="bg-muted p-1 rounded-xl w-full justify-start h-auto">
             <TabsTrigger value="overview" className="rounded-lg font-bold py-2.5 px-6">Overview</TabsTrigger>
