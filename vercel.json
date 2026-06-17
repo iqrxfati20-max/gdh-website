@@ -1,6 +1,6 @@
 {
-  "buildCommand": "pnpm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "pnpm --filter gorakhpur-diaper-house run build",
+  "outputDirectory": "artifacts/gorakhpur-diaper-house/dist",
   "rewrites": [
     {
       "source": "/(.*)",
