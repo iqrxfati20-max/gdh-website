@@ -4,10 +4,12 @@ import { Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { CheckoutModal } from "./CheckoutModal";
 import { useState } from "react";
+import { useLocation } from "wouter";
 
 export function CartSidebar() {
   const { cart, products, isCartOpen, setIsCartOpen, updateCartQty, removeFromCart } = useAppContext();
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [, navigate] = useLocation();
 
   const cartItems = cart.map(item => {
     const product = products.find(p => p.id === item.productId);
@@ -44,7 +46,7 @@ export function CartSidebar() {
             <h3 className="font-bold text-xl text-[#5C3D2E] mb-2">Cart is empty</h3>
             <p className="text-muted-foreground mb-6">Looks like you haven't added anything yet.</p>
             <Button
-              onClick={() => { setIsCartOpen(false); window.location.href = '/products'; }}
+              onClick={() => { setIsCartOpen(false); navigate('/products'); }}
               className="bg-[#E8547A] hover:bg-[#D43D63] text-white rounded-xl h-11 px-8 font-bold"
             >
               Start Shopping
