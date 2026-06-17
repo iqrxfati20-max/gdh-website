@@ -1,7 +1,6 @@
 {
-  "buildCommand": "pnpm --filter gorakhpur-diaper-house run build",
+  "buildCommand": "cd artifacts/gorakhpur-diaper-house && pnpm install && pnpm run build",
   "outputDirectory": "artifacts/gorakhpur-diaper-house/dist",
-  "installCommand": "pnpm install",
   "rewrites": [
     {
       "source": "/(.*)",
