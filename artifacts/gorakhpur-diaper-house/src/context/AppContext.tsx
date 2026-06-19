@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product, initialProducts } from "../data/products";
 import { Customer, initialCustomers } from "../data/customers";
 import { Order, initialOrders } from "../data/orders";
+import { supabase } from "../lib/supabase";
 
 export interface CartItem {
   productId: number;
@@ -34,44 +35,32 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem("gdh_products");
-    return saved ? JSON.parse(saved) : initialProducts;
-  });
-
-  const [customers, setCustomers] = useState<Customer[]>(() => {
-    const saved = localStorage.getItem("gdh_customers");
-    return saved ? JSON.parse(saved) : initialCustomers;
-  });
-
-  const [orders, setOrders] = useState<Order[]>(() => {
-    const saved = localStorage.getItem("gdh_orders");
-    return saved ? JSON.parse(saved) : initialOrders;
-  });
-
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [cart, setCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem("gdh_cart");
     return saved ? JSON.parse(saved) : [];
   });
-
   const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(() => {
     const saved = localStorage.getItem("gdh_current_customer");
     return saved ? JSON.parse(saved) : null;
   });
-
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("gdh_products", JSON.stringify(products));
-  }, [products]);
+    fetchOrders();
+  }, []);
 
-  useEffect(() => {
-    localStorage.setItem("gdh_customers", JSON.stringify(customers));
-  }, [customers]);
-
-  useEffect(() => {
-    localStorage.setItem("gdh_orders", JSON.stringify(orders));
-  }, [orders]);
+  async function fetchOrders() {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!error && data) {
+      setOrders(data);
+    }
+  }
 
   useEffect(() => {
     localStorage.setItem("gdh_cart", JSON.stringify(cart));
@@ -80,7 +69,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (currentCustomer) {
       localStorage.setItem("gdh_current_customer", JSON.stringify(currentCustomer));
-      setCustomers(prev => prev.map(c => c.id === currentCustomer.id ? currentCustomer : c));
     } else {
       localStorage.removeItem("gdh_current_customer");
     }
