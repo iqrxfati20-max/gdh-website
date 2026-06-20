@@ -67,8 +67,9 @@ export function CheckoutModal({ open, onOpenChange, subtotal }: CheckoutModalPro
     };
 
     // Persist to Supabase if connected
+    console.log('[Checkout] supabase client:', supabase ? 'READY' : 'NULL');
     if (supabase) {
-      const { error } = await supabase.from('orders').insert([{
+      const payload = {
         id: orderId,
         customer: data.fullName,
         phone: data.mobile,
@@ -80,14 +81,18 @@ export function CheckoutModal({ open, onOpenChange, subtotal }: CheckoutModalPro
         address: data.address,
         pincode: data.pincode,
         notes: data.notes || "",
-      }]);
+      };
+      console.log('[Checkout] Inserting payload:', payload);
+      const { data: insertData, error } = await supabase.from('orders').insert([payload]).select();
+      console.log('[Checkout] Insert result — data:', insertData, '| error:', error);
       if (error) {
-        console.error("Supabase insert error:", error);
-        toast.error(`Order placed locally, but failed to save to database: ${error.message}`);
-        // Still continue — local state is updated below
+        console.error('[Checkout] Supabase insert FAILED:', error.code, error.message, error.details, error.hint);
+        toast.error(`Failed to save order: ${error.message}`);
+      } else {
+        console.log('[Checkout] Order saved to Supabase ✓');
       }
     } else {
-      console.warn("Supabase not connected — order saved locally only.");
+      console.warn('[Checkout] Supabase is null — order saved locally only.');
     }
 
     setOrders(prev => [newOrder, ...prev]);
