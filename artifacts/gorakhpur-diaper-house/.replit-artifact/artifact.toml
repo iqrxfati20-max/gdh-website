@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Gorakhpur Diaper House"
+version = "1.0.0"
+id = "artifacts/gorakhpur-diaper-house"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18466
+
+[services.development]
+run = "pnpm --filter @workspace/gorakhpur-diaper-house run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/gorakhpur-diaper-house", "run", "build" ]
+publicDir = "artifacts/gorakhpur-diaper-house/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18466"
+BASE_PATH = "/"
