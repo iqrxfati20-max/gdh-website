@@ -80,11 +80,14 @@ export function CheckoutModal({ open, onOpenChange, subtotal }: CheckoutModalPro
         address: data.address,
         pincode: data.pincode,
         notes: data.notes || "",
-        created_at: new Date().toISOString(),
       }]);
       if (error) {
-        console.error("Supabase insert error:", error.message);
+        console.error("Supabase insert error:", error);
+        toast.error(`Order placed locally, but failed to save to database: ${error.message}`);
+        // Still continue — local state is updated below
       }
+    } else {
+      console.warn("Supabase not connected — order saved locally only.");
     }
 
     setOrders(prev => [newOrder, ...prev]);
