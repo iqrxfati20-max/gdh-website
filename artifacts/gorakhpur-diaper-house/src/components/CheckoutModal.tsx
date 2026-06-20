@@ -50,7 +50,9 @@ export function CheckoutModal({ open, onOpenChange, subtotal }: CheckoutModalPro
   });
 
   const onSubmit = async (data: CheckoutFormData) => {
-    const orderId = `GDH${Math.floor(Math.random() * 900) + 100}`;
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const orderId = `GDH-${timestamp}-${random}`;
     const earnedPoints = calculatePoints(subtotal);
 
     // Save Order
@@ -67,9 +69,8 @@ export function CheckoutModal({ open, onOpenChange, subtotal }: CheckoutModalPro
     };
 
     // Persist to Supabase if connected
-    console.log('[Checkout] supabase client:', supabase ? 'READY' : 'NULL');
     if (supabase) {
-      const payload = {
+      const { error } = await supabase.from('orders').insert([{
         id: orderId,
         customer: data.fullName,
         phone: data.mobile,
@@ -81,18 +82,11 @@ export function CheckoutModal({ open, onOpenChange, subtotal }: CheckoutModalPro
         address: data.address,
         pincode: data.pincode,
         notes: data.notes || "",
-      };
-      console.log('[Checkout] Inserting payload:', payload);
-      const { data: insertData, error } = await supabase.from('orders').insert([payload]).select();
-      console.log('[Checkout] Insert result — data:', insertData, '| error:', error);
+      }]);
       if (error) {
-        console.error('[Checkout] Supabase insert FAILED:', error.code, error.message, error.details, error.hint);
-        toast.error(`Failed to save order: ${error.message}`);
-      } else {
-        console.log('[Checkout] Order saved to Supabase ✓');
+        console.error('[Checkout] Supabase insert failed:', error.code, error.message);
+        toast.error(`Failed to save order to database: ${error.message}`);
       }
-    } else {
-      console.warn('[Checkout] Supabase is null — order saved locally only.');
     }
 
     setOrders(prev => [newOrder, ...prev]);
