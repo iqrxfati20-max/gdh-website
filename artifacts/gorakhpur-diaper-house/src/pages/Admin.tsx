@@ -8,8 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { Edit2, Trash2, ShieldCheck, Search } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 export default function Admin() {
   const { products, setProducts, orders, setOrders, customers, setCustomers } = useAppContext();
@@ -67,9 +69,24 @@ export default function Admin() {
     }
   };
 
-  const handleOrderStatusUpdate = (orderId: string, status: string) => {
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+
+  const handleOrderStatusUpdate = async (orderId: string, status: string) => {
+    setUpdatingOrderId(orderId);
+    if (supabase) {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status })
+        .eq("id", orderId);
+      if (error) {
+        toast.error(`Failed to update order: ${error.message}`);
+        setUpdatingOrderId(null);
+        return;
+      }
+    }
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
-    toast.success(`Order ${orderId} status updated to ${status}`);
+    toast.success(`Order status updated to "${status}"`);
+    setUpdatingOrderId(null);
   };
 
   if (!isAuthenticated) {
@@ -280,15 +297,19 @@ export default function Admin() {
                       <TableCell className="font-bold">₹{o.total}</TableCell>
                       <TableCell>{o.payment}</TableCell>
                       <TableCell>
-                        <Select defaultValue={o.status} onValueChange={(val) => handleOrderStatusUpdate(o.id, val)}>
-                          <SelectTrigger className="w-[140px] h-8 text-xs font-bold">
+                        <Select
+                          value={o.status}
+                          disabled={updatingOrderId === o.id}
+                          onValueChange={(val) => handleOrderStatusUpdate(o.id, val)}
+                        >
+                          <SelectTrigger className={`w-[140px] h-8 text-xs font-bold ${updatingOrderId === o.id ? "opacity-60" : ""}`}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Processing">Processing</SelectItem>
-                            <SelectItem value="Shipped">Shipped</SelectItem>
-                            <SelectItem value="Delivered">Delivered</SelectItem>
-                            <SelectItem value="Cancelled">Cancelled</SelectItem>
+                            <SelectItem value="Processing">⏳ Processing</SelectItem>
+                            <SelectItem value="Shipped">🚚 Shipped</SelectItem>
+                            <SelectItem value="Delivered">✅ Delivered</SelectItem>
+                            <SelectItem value="Cancelled">❌ Cancelled</SelectItem>
                           </SelectContent>
                         </Select>
                       </TableCell>
@@ -432,5 +453,3 @@ export default function Admin() {
   );
 }
 
-// Add this at the top of the file so ScrollArea works
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
