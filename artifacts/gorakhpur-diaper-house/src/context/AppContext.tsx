@@ -59,7 +59,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .select('*')
       .order('created_at', { ascending: false });
     if (!error && data) {
-      setOrders(data);
+      const mapped = data.map((row: Record<string, unknown>) => ({
+        id: row.id,
+        customer: row.customer,
+        phone: row.phone,
+        items: typeof row.items === 'string' ? JSON.parse(row.items as string) : row.items,
+        total: row.total,
+        payment: row.payment,
+        status: row.status,
+        referralUsed: row.referral_used ?? row.referralUsed ?? "",
+        date: row.created_at
+          ? (row.created_at as string).split('T')[0]
+          : row.date,
+        address: row.address,
+        pincode: row.pincode,
+        notes: row.notes,
+      }));
+      setOrders(mapped);
     }
   }
 

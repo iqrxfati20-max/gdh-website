@@ -12,6 +12,7 @@ import { calculatePoints } from "../lib/loyalty";
 import { toast } from "sonner";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useLocation } from "wouter";
+import { supabase } from "../lib/supabase";
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, "Name is required"),
@@ -48,7 +49,7 @@ export function CheckoutModal({ open, onOpenChange, subtotal }: CheckoutModalPro
     },
   });
 
-  const onSubmit = (data: CheckoutFormData) => {
+  const onSubmit = async (data: CheckoutFormData) => {
     const orderId = `GDH${Math.floor(Math.random() * 900) + 100}`;
     const earnedPoints = calculatePoints(subtotal);
 
@@ -64,6 +65,27 @@ export function CheckoutModal({ open, onOpenChange, subtotal }: CheckoutModalPro
       referralUsed: data.referralCode || "",
       date: new Date().toISOString().split('T')[0],
     };
+
+    // Persist to Supabase if connected
+    if (supabase) {
+      const { error } = await supabase.from('orders').insert([{
+        id: orderId,
+        customer: data.fullName,
+        phone: data.mobile,
+        items: JSON.stringify(cart),
+        total: subtotal,
+        payment: data.payment,
+        status: "Processing",
+        referral_used: data.referralCode || "",
+        address: data.address,
+        pincode: data.pincode,
+        notes: data.notes || "",
+        created_at: new Date().toISOString(),
+      }]);
+      if (error) {
+        console.error("Supabase insert error:", error.message);
+      }
+    }
 
     setOrders(prev => [newOrder, ...prev]);
 
