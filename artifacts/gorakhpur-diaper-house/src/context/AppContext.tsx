@@ -3,6 +3,7 @@ import { Product, initialProducts } from "../data/products";
 import { Customer, initialCustomers } from "../data/customers";
 import { Order, initialOrders } from "../data/orders";
 import { supabase } from "../lib/supabase";
+import { LoyaltySettings, DEFAULT_LOYALTY_SETTINGS } from "../lib/loyalty";
 
 export interface CartItem {
   productId: number;
@@ -30,6 +31,8 @@ interface AppContextType {
   setCurrentCustomer: React.Dispatch<React.SetStateAction<Customer | null>>;
   isCartOpen: boolean;
   setIsCartOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  loyaltySettings: LoyaltySettings;
+  setLoyaltySettings: React.Dispatch<React.SetStateAction<LoyaltySettings>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -47,6 +50,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return saved ? JSON.parse(saved) : null;
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [loyaltySettings, setLoyaltySettings] = useState<LoyaltySettings>(() => {
+    const saved = localStorage.getItem("gdh_loyalty_settings");
+    return saved ? { ...DEFAULT_LOYALTY_SETTINGS, ...JSON.parse(saved) } : DEFAULT_LOYALTY_SETTINGS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("gdh_loyalty_settings", JSON.stringify(loyaltySettings));
+  }, [loyaltySettings]);
 
   useEffect(() => {
     fetchOrders();
@@ -67,7 +78,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         total: row.total,
         payment: row.payment,
         status: row.status,
-        referralUsed: row.referral_used ?? row.referralUsed ?? "",
+        referralUsed: String(row.referral_used ?? row.referralUsed ?? ""),
         date: row.created_at
           ? (row.created_at as string).split('T')[0]
           : row.date,
@@ -75,7 +86,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         pincode: row.pincode,
         notes: row.notes,
       }));
-      setOrders(mapped);
+      setOrders(mapped as Order[]);
     }
   }
 
@@ -136,7 +147,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       orders, setOrders,
       cart, addToCart, removeFromCart, updateCartQty, clearCart,
       currentCustomer, setCurrentCustomer,
-      isCartOpen, setIsCartOpen
+      isCartOpen, setIsCartOpen,
+      loyaltySettings, setLoyaltySettings
     }}>
       {children}
     </AppContext.Provider>

@@ -13,9 +13,20 @@ import { toast } from "sonner";
 import { Edit2, Trash2, ShieldCheck, Search, Plus } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { SizePricing } from "../data/products";
+import { LoyaltySettings } from "../lib/loyalty";
 
 export default function Admin() {
-  const { products, setProducts, orders, setOrders, customers, setCustomers } = useAppContext();
+  const { products, setProducts, orders, setOrders, customers, setCustomers, loyaltySettings, setLoyaltySettings } = useAppContext();
+  const [localLoyalty, setLocalLoyalty] = useState<LoyaltySettings>(loyaltySettings);
+
+  const handleLoyaltySave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoyaltySettings(localLoyalty);
+    toast.success("Loyalty settings saved!");
+  };
+
+  const setLF = (field: keyof LoyaltySettings, value: number | string) =>
+    setLocalLoyalty(prev => ({ ...prev, [field]: value }));
   
   const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [activeTab, setActiveTab] = useState("overview");
@@ -157,6 +168,7 @@ export default function Admin() {
             <TabsTrigger value="orders" className="rounded-lg font-bold py-2.5 px-6">Orders</TabsTrigger>
             <TabsTrigger value="customers" className="rounded-lg font-bold py-2.5 px-6">Customers</TabsTrigger>
             <TabsTrigger value="add-product" className="rounded-lg font-bold py-2.5 px-6">Add/Edit Product</TabsTrigger>
+            <TabsTrigger value="loyalty" className="rounded-lg font-bold py-2.5 px-6">Loyalty Settings</TabsTrigger>
           </TabsList>
           <ScrollBar orientation="horizontal" className="invisible" />
         </ScrollArea>
@@ -517,6 +529,212 @@ export default function Admin() {
                       Cancel Edit
                     </Button>
                   )}
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* LOYALTY SETTINGS TAB */}
+        <TabsContent value="loyalty" className="space-y-6">
+          <Card className="rounded-2xl max-w-2xl">
+            <CardHeader>
+              <CardTitle className="font-heading text-xl">Loyalty Program Settings</CardTitle>
+              <p className="text-sm text-muted-foreground">All changes take effect for new orders after saving.</p>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleLoyaltySave} className="space-y-8">
+
+                {/* Section 1: Signup & Referral */}
+                <div className="space-y-4">
+                  <h3 className="font-bold text-base text-foreground border-b pb-2">Signup & Referral Rewards</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Points on Signup</Label>
+                      <Input
+                        type="number" min={0}
+                        value={localLoyalty.signupPoints}
+                        onChange={e => setLF("signupPoints", Number(e.target.value))}
+                      />
+                      <p className="text-xs text-muted-foreground">Given when a new customer registers</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Points for Using a Referral</Label>
+                      <Input
+                        type="number" min={0}
+                        value={localLoyalty.referralPoints}
+                        onChange={e => setLF("referralPoints", Number(e.target.value))}
+                      />
+                      <p className="text-xs text-muted-foreground">Customer who enters the referral code gets this</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Points for Referring Someone</Label>
+                      <Input
+                        type="number" min={0}
+                        value={localLoyalty.referrerPoints}
+                        onChange={e => setLF("referrerPoints", Number(e.target.value))}
+                      />
+                      <p className="text-xs text-muted-foreground">Original referrer gets this when their code is used</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 2: Purchase Points */}
+                <div className="space-y-4">
+                  <h3 className="font-bold text-base text-foreground border-b pb-2">Purchase Points</h3>
+                  <div className="space-y-3">
+                    <Label>How points are earned per order</Label>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setLF("pointsMode", "per_rupee")}
+                        className={`flex-1 py-3 px-4 rounded-xl border-2 text-sm font-bold transition-all ${
+                          localLoyalty.pointsMode === "per_rupee"
+                            ? "bg-primary border-primary text-white"
+                            : "bg-white border-border text-foreground hover:border-primary/50"
+                        }`}
+                      >
+                        📊 Per ₹ Spent
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setLF("pointsMode", "per_order")}
+                        className={`flex-1 py-3 px-4 rounded-xl border-2 text-sm font-bold transition-all ${
+                          localLoyalty.pointsMode === "per_order"
+                            ? "bg-primary border-primary text-white"
+                            : "bg-white border-border text-foreground hover:border-primary/50"
+                        }`}
+                      >
+                        🛒 Flat Per Order
+                      </button>
+                    </div>
+
+                    {localLoyalty.pointsMode === "per_rupee" ? (
+                      <div className="space-y-2 pt-1">
+                        <Label>Earn 1 point for every ₹___ spent</Label>
+                        <div className="flex items-center gap-3 max-w-xs">
+                          <span className="text-sm text-muted-foreground whitespace-nowrap">1 point per ₹</span>
+                          <Input
+                            type="number" min={1}
+                            value={localLoyalty.rupeesPerPoint}
+                            onChange={e => setLF("rupeesPerPoint", Number(e.target.value))}
+                            className="w-28"
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          e.g. 10 means a ₹499 order earns {Math.floor(499 / localLoyalty.rupeesPerPoint)} points
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2 pt-1">
+                        <Label>Points per completed order (flat)</Label>
+                        <Input
+                          type="number" min={0}
+                          value={localLoyalty.pointsPerOrder}
+                          onChange={e => setLF("pointsPerOrder", Number(e.target.value))}
+                          className="max-w-xs"
+                        />
+                        <p className="text-xs text-muted-foreground">Every order, regardless of amount, earns this many points</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Section 3: Tier Thresholds */}
+                <div className="space-y-4">
+                  <h3 className="font-bold text-base text-foreground border-b pb-2">Tier Thresholds & Discounts</h3>
+                  <div className="space-y-3">
+                    {/* Silver */}
+                    <div className="flex items-center gap-4 bg-[#F9FAFB] rounded-xl p-4 border border-border">
+                      <span className="text-2xl">🥉</span>
+                      <div className="flex-1">
+                        <p className="font-bold text-sm">Silver</p>
+                        <p className="text-xs text-muted-foreground">Starting tier (0+ points)</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label className="text-xs whitespace-nowrap">Discount %</Label>
+                        <Input
+                          type="number" min={0} max={100}
+                          value={localLoyalty.silverDiscount}
+                          onChange={e => setLF("silverDiscount", Number(e.target.value))}
+                          className="w-20 h-8 text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Gold */}
+                    <div className="flex items-center gap-4 bg-[#FFFBEB] rounded-xl p-4 border border-amber-200">
+                      <span className="text-2xl">🥈</span>
+                      <div className="flex-1">
+                        <p className="font-bold text-sm">Gold</p>
+                        <p className="text-xs text-muted-foreground">Minimum points to reach Gold</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label className="text-xs whitespace-nowrap">Min Points</Label>
+                        <Input
+                          type="number" min={1}
+                          value={localLoyalty.goldThreshold}
+                          onChange={e => setLF("goldThreshold", Number(e.target.value))}
+                          className="w-24 h-8 text-sm"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label className="text-xs whitespace-nowrap">Discount %</Label>
+                        <Input
+                          type="number" min={0} max={100}
+                          value={localLoyalty.goldDiscount}
+                          onChange={e => setLF("goldDiscount", Number(e.target.value))}
+                          className="w-20 h-8 text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Platinum */}
+                    <div className="flex items-center gap-4 bg-[#F0F9FF] rounded-xl p-4 border border-sky-200">
+                      <span className="text-2xl">🥇</span>
+                      <div className="flex-1">
+                        <p className="font-bold text-sm">Platinum</p>
+                        <p className="text-xs text-muted-foreground">Minimum points to reach Platinum</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label className="text-xs whitespace-nowrap">Min Points</Label>
+                        <Input
+                          type="number" min={1}
+                          value={localLoyalty.platinumThreshold}
+                          onChange={e => setLF("platinumThreshold", Number(e.target.value))}
+                          className="w-24 h-8 text-sm"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label className="text-xs whitespace-nowrap">Discount %</Label>
+                        <Input
+                          type="number" min={0} max={100}
+                          value={localLoyalty.platinumDiscount}
+                          onChange={e => setLF("platinumDiscount", Number(e.target.value))}
+                          className="w-20 h-8 text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* live preview */}
+                  <div className="bg-[#FDE8ED]/40 rounded-xl p-4 border border-primary/10 mt-2">
+                    <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Current Tier Structure Preview</p>
+                    <div className="flex flex-wrap gap-3 text-sm">
+                      <span className="bg-white rounded-lg px-3 py-1.5 border font-medium">🥉 Silver: 0–{localLoyalty.goldThreshold - 1} pts · {localLoyalty.silverDiscount}% off</span>
+                      <span className="bg-white rounded-lg px-3 py-1.5 border font-medium">🥈 Gold: {localLoyalty.goldThreshold}–{localLoyalty.platinumThreshold - 1} pts · {localLoyalty.goldDiscount}% off</span>
+                      <span className="bg-white rounded-lg px-3 py-1.5 border font-medium">🥇 Platinum: {localLoyalty.platinumThreshold}+ pts · {localLoyalty.platinumDiscount}% off</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-2">
+                  <Button type="submit" className="bg-primary hover:bg-primary/90 text-white font-bold h-12 px-10 rounded-xl">
+                    Save Settings
+                  </Button>
+                  <Button type="button" variant="outline" className="h-12 rounded-xl" onClick={() => setLocalLoyalty(loyaltySettings)}>
+                    Reset
+                  </Button>
                 </div>
               </form>
             </CardContent>

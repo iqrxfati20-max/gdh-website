@@ -33,7 +33,7 @@ interface CheckoutModalProps {
 }
 
 export function CheckoutModal({ open, onOpenChange, subtotal }: CheckoutModalProps) {
-  const { currentCustomer, setOrders, setCurrentCustomer, setCustomers, cart, clearCart, customers } = useAppContext();
+  const { currentCustomer, setOrders, setCurrentCustomer, setCustomers, cart, clearCart, customers, loyaltySettings } = useAppContext();
   const [, setLocation] = useLocation();
 
   const form = useForm<CheckoutFormData>({
@@ -53,7 +53,7 @@ export function CheckoutModal({ open, onOpenChange, subtotal }: CheckoutModalPro
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();
     const orderId = `GDH-${timestamp}-${random}`;
-    const earnedPoints = calculatePoints(subtotal);
+    const earnedPoints = calculatePoints(subtotal, loyaltySettings);
 
     // Save Order
     const newOrder = {
@@ -108,18 +108,19 @@ export function CheckoutModal({ open, onOpenChange, subtotal }: CheckoutModalPro
       if (data.referralCode) {
         const referrer = customers.find(c => c.referralCode === data.referralCode && c.id !== currentCustomer.id);
         if (referrer) {
-          updatedCustomer.points += 20;
-          updatedCustomer.pointsHistory.unshift({ date: new Date().toISOString().split('T')[0], desc: `Used Referral ${data.referralCode}`, points: 20 });
-          
-          // Also reward referrer (in a real app this would be a separate mutation)
+          const rp = loyaltySettings.referralPoints;
+          const refp = loyaltySettings.referrerPoints;
+          updatedCustomer.points += rp;
+          updatedCustomer.pointsHistory.unshift({ date: new Date().toISOString().split('T')[0], desc: `Used Referral ${data.referralCode}`, points: rp });
+
           setCustomers(prev => prev.map(c => {
             if (c.id === referrer.id) {
               return {
                 ...c,
-                points: c.points + 50,
+                points: c.points + refp,
                 referralCount: c.referralCount + 1,
                 pointsHistory: [
-                  { date: new Date().toISOString().split('T')[0], desc: `Referral Bonus (${data.fullName})`, points: 50 },
+                  { date: new Date().toISOString().split('T')[0], desc: `Referral Bonus (${data.fullName})`, points: refp },
                   ...c.pointsHistory
                 ]
               };

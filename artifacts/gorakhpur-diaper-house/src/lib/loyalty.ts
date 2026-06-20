@@ -1,3 +1,31 @@
+export interface LoyaltySettings {
+  signupPoints: number;
+  referralPoints: number;
+  referrerPoints: number;
+  pointsMode: "per_rupee" | "per_order";
+  rupeesPerPoint: number;
+  pointsPerOrder: number;
+  silverDiscount: number;
+  goldThreshold: number;
+  goldDiscount: number;
+  platinumThreshold: number;
+  platinumDiscount: number;
+}
+
+export const DEFAULT_LOYALTY_SETTINGS: LoyaltySettings = {
+  signupPoints: 50,
+  referralPoints: 20,
+  referrerPoints: 50,
+  pointsMode: "per_rupee",
+  rupeesPerPoint: 10,
+  pointsPerOrder: 10,
+  silverDiscount: 5,
+  goldThreshold: 500,
+  goldDiscount: 10,
+  platinumThreshold: 1500,
+  platinumDiscount: 15,
+};
+
 export interface TierInfo {
   name: string;
   emoji: string;
@@ -5,16 +33,17 @@ export interface TierInfo {
   nextTierPoints: number | null;
 }
 
-export function getTier(points: number): TierInfo {
-  if (points >= 1500) {
-    return { name: "Platinum", emoji: "🥇", discount: 15, nextTierPoints: null };
-  } else if (points >= 500) {
-    return { name: "Gold", emoji: "🥈", discount: 10, nextTierPoints: 1500 };
+export function getTier(points: number, s: LoyaltySettings = DEFAULT_LOYALTY_SETTINGS): TierInfo {
+  if (points >= s.platinumThreshold) {
+    return { name: "Platinum", emoji: "🥇", discount: s.platinumDiscount, nextTierPoints: null };
+  } else if (points >= s.goldThreshold) {
+    return { name: "Gold", emoji: "🥈", discount: s.goldDiscount, nextTierPoints: s.platinumThreshold };
   } else {
-    return { name: "Silver", emoji: "🥉", discount: 5, nextTierPoints: 500 };
+    return { name: "Silver", emoji: "🥉", discount: s.silverDiscount, nextTierPoints: s.goldThreshold };
   }
 }
 
-export function calculatePoints(amount: number): number {
-  return Math.floor(amount / 10);
+export function calculatePoints(amount: number, s: LoyaltySettings = DEFAULT_LOYALTY_SETTINGS): number {
+  if (s.pointsMode === "per_order") return s.pointsPerOrder;
+  return Math.floor(amount / s.rupeesPerPoint);
 }
