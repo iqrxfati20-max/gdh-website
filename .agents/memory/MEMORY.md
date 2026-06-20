@@ -1,0 +1,1 @@
+- [Size-based pricing design](size-pricing.md) — `Product.sizes?: SizePricing[]` per-size price; cart/modal fall back to `product.price` when no match.

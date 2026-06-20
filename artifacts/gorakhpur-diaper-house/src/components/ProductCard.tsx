@@ -14,6 +14,16 @@ function isDiaperCategory(category: string): boolean {
   return category in DIAPER_SIZES;
 }
 
+function getSizePrice(product: Product, size: string): number {
+  const sz = product.sizes?.find(s => s.size === size);
+  return sz ? sz.price : product.price;
+}
+
+function getSizeOldPrice(product: Product, size: string): number {
+  const sz = product.sizes?.find(s => s.size === size);
+  return sz ? sz.oldPrice : product.oldPrice;
+}
+
 const BADGE_STYLES: Record<string, string> = {
   "Best Seller": "bg-[#FFF3E0] text-[#B45309]",
   "New Arrival": "bg-[#ECFDF5] text-[#065F46]",
@@ -27,8 +37,11 @@ export function ProductCard({ product }: { product: Product }) {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [sizeWarning, setSizeWarning] = useState(false);
 
-  const isDialer = isDiaperCategory(product.category);
-  const sizes = DIAPER_SIZES[product.category] ?? [];
+  const hasCustomSizes = (product.sizes?.length ?? 0) > 0;
+  const isDialer = hasCustomSizes || isDiaperCategory(product.category);
+  const sizes = hasCustomSizes
+    ? product.sizes!.map(s => s.size)
+    : (DIAPER_SIZES[product.category] ?? []);
   const badgeStyle = product.badge ? (BADGE_STYLES[product.badge] ?? "bg-[#F3F4F6] text-[#6B7280]") : "";
   const savePct = product.oldPrice > product.price
     ? Math.round((1 - product.price / product.oldPrice) * 100)
@@ -140,19 +153,24 @@ export function ProductCard({ product }: { product: Product }) {
             <p className="text-xs text-[#8A7070] mt-0.5">{product.category}</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 mb-4" data-testid="size-selector-grid">
+          <div className={`grid gap-2 mb-4 ${hasCustomSizes ? "grid-cols-2" : "grid-cols-3"}`} data-testid="size-selector-grid">
             {sizes.map(size => (
               <button
                 key={size}
                 data-testid={`button-size-${size}`}
                 onClick={() => { setSelectedSize(size); setSizeWarning(false); }}
-                className={`py-3 rounded-xl text-sm font-bold border-2 transition-all duration-150
+                className={`py-2.5 px-3 rounded-xl border-2 transition-all duration-150 flex flex-col items-center gap-0.5
                   ${selectedSize === size
                     ? "bg-[#E8547A] border-[#E8547A] text-white shadow-sm"
                     : "bg-white border-[#F4A0B0]/40 text-[#5C3D2E] hover:border-[#F4A0B0] hover:bg-[#FDE8ED]"
                   }`}
               >
-                {size}
+                <span className="text-sm font-bold">{size}</span>
+                {hasCustomSizes && (
+                  <span className={`text-xs font-semibold ${selectedSize === size ? "text-white/90" : "text-[#E8547A]"}`}>
+                    ₹{getSizePrice(product, size)}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -164,6 +182,18 @@ export function ProductCard({ product }: { product: Product }) {
             >
               Please select a size first
             </p>
+          )}
+
+          {selectedSize && hasCustomSizes && (
+            <div className="flex items-baseline justify-between mb-3 px-1">
+              <span className="text-sm text-[#8A7070]">Price for size {selectedSize}</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-xl font-black text-[#5C3D2E]">₹{getSizePrice(product, selectedSize)}</span>
+                {getSizeOldPrice(product, selectedSize) > getSizePrice(product, selectedSize) && (
+                  <span className="text-xs text-[#8A7070] line-through">₹{getSizeOldPrice(product, selectedSize)}</span>
+                )}
+              </div>
+            </div>
           )}
 
           <Button

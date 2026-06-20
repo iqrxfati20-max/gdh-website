@@ -16,12 +16,20 @@ export function CartSidebar() {
     return { ...item, product };
   }).filter(item => item.product !== undefined) as (typeof cart[0] & { product: NonNullable<ReturnType<typeof products.find>> })[];
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.qty), 0);
+  function getItemPrice(product: typeof cartItems[0]['product'], size?: string): number {
+    if (size && product.sizes?.length) {
+      const sz = product.sizes.find(s => s.size === size);
+      if (sz) return sz.price;
+    }
+    return product.price;
+  }
+
+  const subtotal = cartItems.reduce((sum, item) => sum + (getItemPrice(item.product, item.size) * item.qty), 0);
 
   const handleWhatsAppOrder = () => {
     const lines = cartItems.map(item => {
       const sizePart = item.size ? ` (Size: ${item.size})` : "";
-      return `- ${item.product.name}${sizePart} x${item.qty} = ₹${item.product.price * item.qty}`;
+      return `- ${item.product.name}${sizePart} x${item.qty} = ₹${getItemPrice(item.product, item.size) * item.qty}`;
     });
     const text = `Hi Gorakhpur Diaper House!\n\nI want to order:\n${lines.join('\n')}\n\nTotal: ₹${subtotal}\n\nPlease let me know the delivery details.`;
     const url = `https://wa.me/919169111557?text=${encodeURIComponent(text)}`;
@@ -79,7 +87,7 @@ export function CartSidebar() {
                         Size: {item.size}
                       </span>
                     )}
-                    <span className="font-black text-primary mb-auto">₹{item.product.price}</span>
+                    <span className="font-black text-primary mb-auto">₹{getItemPrice(item.product, item.size)}</span>
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
                         <Button

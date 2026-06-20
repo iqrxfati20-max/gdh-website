@@ -1,3 +1,9 @@
+export interface SizePricing {
+  size: string;
+  price: number;
+  oldPrice: number;
+}
+
 export interface Product {
   id: number;
   emoji: string;
@@ -10,6 +16,7 @@ export interface Product {
   rating: number;
   cardBg: string;
   stock: number;
+  sizes?: SizePricing[];
 }
 
 export const initialProducts: Product[] = [

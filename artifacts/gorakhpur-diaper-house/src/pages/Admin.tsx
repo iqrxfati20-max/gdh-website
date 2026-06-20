@@ -10,8 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
-import { Edit2, Trash2, ShieldCheck, Search } from "lucide-react";
+import { Edit2, Trash2, ShieldCheck, Search, Plus } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import { SizePricing } from "../data/products";
 
 export default function Admin() {
   const { products, setProducts, orders, setOrders, customers, setCustomers } = useAppContext();
@@ -23,9 +24,23 @@ export default function Admin() {
   const [productSearch, setProductSearch] = useState("");
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  const [formData, setFormData] = useState<Partial<Product>>({
-    name: "", brand: "", category: "Baby Diapers", price: 0, oldPrice: 0, stock: 0, emoji: "📦", badge: "", rating: 4.5, cardBg: "#FFFFFF"
-  });
+  const EMPTY_FORM: Partial<Product> = {
+    name: "", brand: "", category: "Baby Diapers", price: 0, oldPrice: 0, stock: 0, emoji: "📦", badge: "", rating: 4.5, cardBg: "#FFFFFF", sizes: []
+  };
+  const [formData, setFormData] = useState<Partial<Product>>(EMPTY_FORM);
+
+  const addSizeRow = () =>
+    setFormData(prev => ({ ...prev, sizes: [...(prev.sizes || []), { size: "", price: 0, oldPrice: 0 }] }));
+
+  const updateSizeRow = (i: number, field: keyof SizePricing, value: string | number) =>
+    setFormData(prev => {
+      const sizes = [...(prev.sizes || [])];
+      sizes[i] = { ...sizes[i], [field]: value };
+      return { ...prev, sizes };
+    });
+
+  const removeSizeRow = (i: number) =>
+    setFormData(prev => ({ ...prev, sizes: (prev.sizes || []).filter((_, idx) => idx !== i) }));
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +68,7 @@ export default function Admin() {
     }
     
     setEditingProduct(null);
-    setFormData({ name: "", brand: "", category: "Baby Diapers", price: 0, oldPrice: 0, stock: 0, emoji: "📦", badge: "", rating: 4.5, cardBg: "#FFFFFF" });
+    setFormData(EMPTY_FORM);
   };
 
   const handleEditClick = (product: Product) => {
@@ -417,6 +432,65 @@ export default function Admin() {
                   </div>
                 </div>
 
+                {/* Sizes & Pricing */}
+                <div className="space-y-3 border border-border rounded-xl p-4 bg-muted/30">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-bold">Sizes & Pricing</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">Optional — add sizes (S, M, L…) each with their own price</p>
+                    </div>
+                    <Button type="button" variant="outline" size="sm" className="h-8 rounded-lg gap-1" onClick={addSizeRow}>
+                      <Plus className="h-3.5 w-3.5" /> Add Size
+                    </Button>
+                  </div>
+
+                  {(formData.sizes || []).length === 0 ? (
+                    <p className="text-xs text-muted-foreground italic">No sizes — all orders use the base price above.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 px-1">
+                        <span className="text-xs font-bold text-muted-foreground">Size Name</span>
+                        <span className="text-xs font-bold text-muted-foreground">Price (₹)</span>
+                        <span className="text-xs font-bold text-muted-foreground">Old Price (₹)</span>
+                        <span />
+                      </div>
+                      {(formData.sizes || []).map((sz, i) => (
+                        <div key={i} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
+                          <Input
+                            placeholder="e.g. S, M, XL"
+                            value={sz.size}
+                            onChange={e => updateSizeRow(i, 'size', e.target.value)}
+                            className="h-9 text-sm"
+                          />
+                          <Input
+                            type="number"
+                            placeholder="449"
+                            value={sz.price || ''}
+                            onChange={e => updateSizeRow(i, 'price', Number(e.target.value))}
+                            className="h-9 text-sm"
+                          />
+                          <Input
+                            type="number"
+                            placeholder="599"
+                            value={sz.oldPrice || ''}
+                            onChange={e => updateSizeRow(i, 'oldPrice', Number(e.target.value))}
+                            className="h-9 text-sm"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 text-destructive hover:bg-destructive/10"
+                            onClick={() => removeSizeRow(i)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Emoji Icon</Label>
@@ -438,7 +512,7 @@ export default function Admin() {
                   {editingProduct && (
                     <Button type="button" variant="outline" className="h-12 rounded-xl" onClick={() => {
                       setEditingProduct(null);
-                      setFormData({ name: "", brand: "", category: "Baby Diapers", price: 0, oldPrice: 0, stock: 0, emoji: "📦", badge: "", rating: 4.5, cardBg: "#FFFFFF" });
+                      setFormData(EMPTY_FORM);
                     }}>
                       Cancel Edit
                     </Button>
