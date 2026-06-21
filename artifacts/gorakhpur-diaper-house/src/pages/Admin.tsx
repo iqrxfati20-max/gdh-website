@@ -14,14 +14,22 @@ import { Edit2, Trash2, ShieldCheck, Search, Plus } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { SizePricing } from "../data/products";
 import { LoyaltySettings } from "../lib/loyalty";
+import { productToDb, loyaltyToDb } from "../lib/db";
 
 export default function Admin() {
-  const { products, setProducts, orders, setOrders, customers, setCustomers, loyaltySettings, setLoyaltySettings } = useAppContext();
+  const { products, setProducts, orders, setOrders, customers, setCustomers, loyaltySettings, setLoyaltySettings, setupRequired } = useAppContext();
   const [localLoyalty, setLocalLoyalty] = useState<LoyaltySettings>(loyaltySettings);
 
-  const handleLoyaltySave = (e: React.FormEvent) => {
+  const handleLoyaltySave = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoyaltySettings(localLoyalty);
+    if (supabase) {
+      const { error } = await supabase.from("loyalty_settings").upsert([loyaltyToDb(localLoyalty)]);
+      if (error) {
+        toast.error(`Failed to save: ${error.message}`);
+        return;
+      }
+    }
     toast.success("Loyalty settings saved!");
   };
 
@@ -63,21 +71,29 @@ export default function Admin() {
     }
   };
 
-  const handleProductSave = (e: React.FormEvent) => {
+  const handleProductSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    let savedProduct: Product;
     if (editingProduct) {
-      setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, ...formData } as Product : p));
-      toast.success("Product updated!");
+      savedProduct = { ...editingProduct, ...formData } as Product;
+      setProducts(prev => prev.map(p => p.id === editingProduct.id ? savedProduct : p));
     } else {
-      const newProduct = {
-        ...formData,
-        id: Date.now(),
-      } as Product;
-      setProducts([newProduct, ...products]);
-      toast.success("Product added!");
+      savedProduct = { ...formData, id: Date.now() } as Product;
+      setProducts(prev => [savedProduct, ...prev]);
     }
-    
+
+    if (supabase) {
+      const { error } = await supabase.from("products").upsert([productToDb(savedProduct)]);
+      if (error) {
+        toast.error(`DB error: ${error.message}`);
+      } else {
+        toast.success(editingProduct ? "Product updated & saved to DB!" : "Product added & saved to DB!");
+      }
+    } else {
+      toast.success(editingProduct ? "Product updated!" : "Product added!");
+    }
+
     setEditingProduct(null);
     setFormData(EMPTY_FORM);
   };
@@ -88,10 +104,16 @@ export default function Admin() {
     setActiveTab("add-product");
   };
 
-  const handleDeleteProduct = (id: number) => {
+  const handleDeleteProduct = async (id: number) => {
     if (confirm("Are you sure you want to delete this product?")) {
       setProducts(prev => prev.filter(p => p.id !== id));
-      toast.success("Product deleted.");
+      if (supabase) {
+        const { error } = await supabase.from("products").delete().eq("id", id);
+        if (error) toast.error(`Delete failed: ${error.message}`);
+        else toast.success("Product deleted from DB.");
+      } else {
+        toast.success("Product deleted.");
+      }
     }
   };
 
@@ -159,6 +181,30 @@ export default function Admin() {
         </h1>
         <Button variant="outline" onClick={() => setIsAuthenticated(false)}>Logout</Button>
       </div>
+
+      {setupRequired && (
+        <div className="mb-6 rounded-2xl border border-amber-300 bg-amber-50 p-5">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">⚠️</span>
+            <div className="flex-1">
+              <p className="font-bold text-amber-900 mb-1">Database tables not set up yet</p>
+              <p className="text-sm text-amber-800 mb-3">
+                Products and loyalty settings won't persist until you create the required tables in Supabase.
+                Open your <strong>Supabase SQL Editor</strong> and run the file at{" "}
+                <code className="bg-amber-100 px-1 rounded font-mono text-xs">supabase/setup.sql</code> in this project.
+              </p>
+              <a
+                href={`https://supabase.com/dashboard/project/cwjzbpbekkxqllkcnxtf/sql/new`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-sm font-bold text-amber-700 underline hover:text-amber-900"
+              >
+                Open Supabase SQL Editor →
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
         <ScrollArea className="w-full whitespace-nowrap">
